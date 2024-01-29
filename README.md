@@ -46,6 +46,7 @@ Contributions to this project are welcome. Please fork the repository and submit
 This project makes use of the Python programming language and implements Bitcoin Improvement Proposals (BIPs). We acknowledge the use of external libraries compliant with their respective licenses. The BIP specifications utilized in this project can be found in the [Bitcoin BIPs repository](https://github.com/bitcoin/bips/tree/master?tab=readme-ov-file).
 
 ## License
-[Specify the license or insert 'This project is licensed under the [License Name] - see the LICENSE.md file for details']
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+
 
 
