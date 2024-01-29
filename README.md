@@ -1,12 +1,12 @@
 # Bitcoin Wallet Seed and Key Generator (bip39)
 
 ## Overview
-This repository, available at [this link](https://github.com/MCM-Mike/bitcoin-bip39-wallet), contains two Python scripts for generating and managing cryptocurrency wallet seeds and keys in compliance with BIP39, BIP44, BIP49, and BIP84 standards. These scripts facilitate the creation of mnemonic phrases, derivation of wallet keys, and generation of QR codes and PDFs for secure and convenient storage of wallet information.
+This repository contains two Python scripts for generating and managing cryptocurrency wallet seeds and keys in compliance with BIP39, BIP44, BIP49, and BIP84 standards. These scripts facilitate the creation of mnemonic phrases, derivation of wallet keys, and generation of QR codes and PDFs for secure and convenient storage of wallet information.
 
 ### Scripts
-1. **bip39-wallet-gen-QR-codes-markup.py**: Generates mnemonic phrases and derives wallet keys, embedding this information along with QR codes into a text file with markup formatting.
+1. **bip39-wallet-gen-QR-codes-markup.py**: Generates mnemonic phrases and derives wallet keys, embedding this information along with **QR codes** into a text file with **markup formatting**.
    
-2. **bip39-wallet-gen-PDF.py**: Similar to the first script but outputs the wallet information, including QR codes, in a well-formatted PDF document.
+2. **bip39-wallet-gen-PDF.py**: Similar to the first script but outputs the wallet information, including QR codes, in a **well-formatted PDF document**.
 
 ## Features
 - **Mnemonic Phrase Generation**: Both scripts generate mnemonic phrases of 12 or 24 words.
