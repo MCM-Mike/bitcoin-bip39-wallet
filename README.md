@@ -46,6 +46,31 @@ or `python bip39-wallet-gen-PDF.py`
 - **Sample Outputs**: [View Test Wallet Markup Example](https://github.com/MCM-Mike/bitcoin-bip39-wallet/blob/main/examples)
 
 
+## Gen-Wallet-Output-HTML Script
+
+### Overview
+The `gen-wallet-output-html.py` script is our latest tool designed to generate a comprehensive Bitcoin wallet report. It allows users to create a mnemonic phrase and derive BIP44, BIP49, and BIP84 addresses with their corresponding public keys. For ease of use and sharing, the script generates QR codes for each item and compiles all information into a neatly formatted HTML file.
+
+### Features
+- Choice between 12-word or 24-word mnemonic phrase.
+- Generates BIP44, BIP49, and BIP84 addresses along with their public keys.
+- Creates QR codes for easy scanning of the mnemonic, addresses, and public keys.
+- Outputs all information in a user-friendly HTML format.
+- Includes date and time stamp of the wallet generation.
+
+### Usage
+1. Run the script with `python3 gen-wallet-output-html.py`.
+2. Select the desired length for the mnemonic phrase when prompted.
+3. Upon completion, the script will generate an HTML file named `mnemonic_and_addresses.html` containing the detailed wallet information.
+
+### Output File
+The `mnemonic_and_addresses.html` file includes:
+- The chosen mnemonic phrase.
+- QR codes for the mnemonic.
+- Generated BIP44, BIP49, and BIP84 addresses and their public keys.
+- QR codes for each address and public key.
+- Date and time of the wallet generation, for record-keeping.
+
 
 
 ## Contributing
