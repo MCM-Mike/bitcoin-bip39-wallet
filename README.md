@@ -2,11 +2,14 @@
 
 ## Overview
 This repository contains two Python scripts for generating and managing cryptocurrency wallet seeds and keys in compliance with BIP39, BIP44, BIP49, and BIP84 standards. These scripts facilitate the creation of mnemonic phrases, derivation of wallet keys, and generation of QR codes and PDFs for secure and convenient storage of wallet information.
+This repository now includes an additional Bash script for generating Bitcoin addresses and keys. The script creates a temporary Python environment, generates standard and BIP44, BIP49, BIP84 compliant Bitcoin addresses and keys, and presents them in a user-friendly format.
+
 
 ### Scripts
 1. **bip39-wallet-gen-QR-codes-markup.py**: Generates mnemonic phrases and derives wallet keys, embedding this information along with **QR codes** into a text file with **markup formatting**.
    
 2. **bip39-wallet-gen-PDF.py**: Similar to the first script but outputs the wallet information, including QR codes, in a **well-formatted PDF document**.
+3. **generate_BTC_address-all_locally.sh**: This Bash script leverages Python to generate Bitcoin addresses and keys. It presents the results with ASCII art for clarity and aesthetics.
 
 ## Features
 - **Mnemonic Phrase Generation**: Both scripts generate mnemonic phrases of 12 or 24 words.
@@ -15,6 +18,10 @@ This repository contains two Python scripts for generating and managing cryptocu
 - **Output Formats**:
   - **Markup File**: The first script generates a text file with markup, including QR codes embedded as base64 images.
   - **PDF Document**: The second script creates a PDF document with all relevant wallet information and QR codes.
+- **Isolated Python Environment**: Generates keys in a temporary Python environment for security.
+   - **Support for Multiple BIP Standards**: Handles BIP44, BIP49, and BIP84 Bitcoin address and key generation.
+   - **Formatted Output**: Utilizes ASCII art to present the Bitcoin address and keys in an easy-to-read format.
+
 
 ## Prerequisites
 - Python 3.x
@@ -37,6 +44,7 @@ or `python bip39-wallet-gen-PDF.py`
 
 - **Screenshots**: ![Example Wallet Screenshot - First Page](examples/Example-Wallet-Screenshot-1stpage.jpg)
 - **Sample Outputs**: [View Test Wallet Markup Example](https://github.com/MCM-Mike/bitcoin-bip39-wallet/blob/main/examples)
+
 
 
 
