@@ -36,7 +36,7 @@ or `python bip39-wallet-gen-PDF.py`
 ## Examples
 
 - **Screenshots**: ![Example Wallet Screenshot - First Page](examples/Example-Wallet-Screenshot-1stpage.jpg)
-- **Sample Outputs**: [View Test Wallet Markup Example](https://github.com/MCM-Mike/bitcoin-bip39-wallet/blob/main/examples
+- **Sample Outputs**: [View Test Wallet Markup Example](https://github.com/MCM-Mike/bitcoin-bip39-wallet/blob/main/examples)
 
 
 
