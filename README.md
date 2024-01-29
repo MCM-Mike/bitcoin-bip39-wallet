@@ -35,8 +35,10 @@ or `python bip39-wallet-gen-PDF.py`
 
 ## Examples
 
-- **Screenshots**: (Include a couple of screenshots demonstrating the script in action and the output files.)
-- **Sample Outputs**: (Provide links to example output files - a markup text file and a PDF document.)
+- **Screenshots**: ![Example Wallet Screenshot - First Page](examples/Example-Wallet-Screenshot-1stpage.jpg)
+- **Sample Outputs**: [View Test Wallet Markup Example](https://github.com/MCM-Mike/bitcoin-bip39-wallet/blob/main/examples
+
+
 
 ## Contributing
 Contributions to this project are welcome. Please fork the repository and submit a pull request with your proposed changes.
