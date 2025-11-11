@@ -1,29 +1,38 @@
 import subprocess
 import sys
+import os
 
-def install_and_import(package, import_name=None):
+def setup_virtual_environment():
     """
-    Installs a package if it's not already installed, then imports it.
+    Sets up a virtual environment, installs dependencies, and ensures the
+    script runs within it.
     """
-    if import_name is None:
-        import_name = package
-    try:
-        __import__(import_name)
-    except ImportError:
-        print(f"'{package}' not found. Installing now...")
-        try:
-            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-            __import__(import_name)
-            print(f"'{package}' installed successfully.")
-        except Exception as e:
-            print(f"Error installing '{package}': {e}")
-            sys.exit(1)
+    venv_dir = "venv"
+    if sys.prefix == os.path.abspath(venv_dir):
+        # Already in the correct virtual environment
+        return
 
-# Check and install dependencies
-install_and_import("mnemonic")
-install_and_import("bip_utils")
-install_and_import("qrcode")
-install_and_import("fpdf")
+    if not os.path.exists(venv_dir):
+        print("Creating virtual environment...")
+        subprocess.check_call([sys.executable, "-m", "venv", venv_dir])
+
+    # Determine the path to the python executable in the venv
+    if sys.platform == "win32":
+        python_executable = os.path.join(venv_dir, "Scripts", "python.exe")
+    else:
+        python_executable = os.path.join(venv_dir, "bin", "python")
+
+    # Uninstall old fpdf versions and install dependencies
+    print("Uninstalling old fpdf versions and installing dependencies...")
+    subprocess.check_call([python_executable, "-m", "pip", "uninstall", "--yes", "fpdf", "pypdf"])
+    subprocess.check_call([python_executable, "-m", "pip", "install", "-r", "requirements.txt"])
+
+    # Relaunch the script with the venv's python
+    print("Relaunching script in the virtual environment...")
+    os.execv(python_executable, [python_executable] + sys.argv)
+
+# Setup virtual environment and dependencies before importing them
+setup_virtual_environment()
 
 from mnemonic import Mnemonic
 # YLCN: I added Bip49Coins and Bip84Coins enum imports
@@ -33,6 +42,7 @@ import qrcode
 import base64
 from io import BytesIO
 from fpdf import FPDF
+from fpdf.enums import XPos, YPos
 
 def get_user_input():
     strength_choice = input("Choose mnemonic length (12 or 24 words): ").strip()
@@ -160,7 +170,7 @@ def create_xpub_keys_table_data(xpub_keys):
     for bip_type in xpub_keys:
         table_data.append([bip_type,
                           xpub_keys[bip_type]['key'],
-                          xpub_keys[bip_type]['qr_code'].get_image()
+                          xpub_keys[bip_type]['qr_code']
                           ])
     return table_data    
     
@@ -237,40 +247,42 @@ def create_pdf(seed_name, mnemonic):
     # First page title-seed name and generated time info
     pdf.add_page()
     pdf.set_font('helvetica',size = 24)
-    pdf.cell(txt=f'Seed Information')
+    pdf.cell(w=0, text=f'Seed Information')
     pdf.set_font('helvetica',size=14)
     pdf.ln(12)
-    pdf.cell(txt=f'Seed Name: {seed_name}',new_x='LMARGIN',new_y='NEXT')
+    pdf.cell(w=0, text=f'Seed Name: {seed_name}', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     pdf.set_font('helvetica','I',size=11)
     pdf.ln(2)
-    pdf.cell(txt=f"(generated on {pdf.now})",new_x='LMARGIN',new_y='NEXT')
+    pdf.cell(w=0, text=f"(generated on {pdf.now})", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     pdf.ln(2)
     pdf.set_font('helvetica','B',size=12)
 
     
     
     #Mnemonic words
-    pdf.set_draw_color(color_1)
+    pdf.set_draw_color(*color_1)
     pdf.set_line_width(0.5)
     pdf.line(5,pdf.y,pdf.w-5,pdf.y)
     pdf.ln(8)
 
-    pdf.cell(txt='Mnemonic Words:',new_x='LMARGIN',new_y='NEXT')
+    pdf.cell(w=0, text='Mnemonic Words:', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     MNEMONIC_SECTION_Y = pdf.y
     pdf.ln(1)
 
 
     pdf.set_font('helvetica',size=11)
     for i,word in enumerate(mnemonic.split()):
-        pdf.cell(txt=f'{i+1:>2}. {word}',new_x='LMARGIN',new_y='NEXT')
+        pdf.cell(w=0, text=f'{i+1:>2}. {word}', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
     # Place Mneminic qr code image
     mnemonic_qr = generate_qr_code(mnemonic)
-    pdf.text(txt='Mnemonic QR Code', x=62,y = MNEMONIC_SECTION_Y)
-    pdf.image(mnemonic_qr.get_image(),x=60,y=MNEMONIC_SECTION_Y+3,w=35,h=35)
+    pdf.text(text='Mnemonic QR Code', x=62,y = MNEMONIC_SECTION_Y)
+    mnemonic_qr_path = "temp_mnemonic_qr.png"
+    mnemonic_qr.save(mnemonic_qr_path)
+    pdf.image(mnemonic_qr_path, x=60, y=MNEMONIC_SECTION_Y + 3, w=35, h=35)
 
 
-    pdf.set_draw_color(color_1)
+    pdf.set_draw_color(*color_1)
     pdf.set_line_width(0.5)
     pdf.ln(8)
     
@@ -286,7 +298,7 @@ def create_pdf(seed_name, mnemonic):
     # We add a new page to start extended public keys from start
     pdf.add_page()
     pdf.set_font('helvetica','B',size=12)
-    pdf.cell(txt='Account Extended Public Keys',new_x='LMARGIN',new_y='NEXT')
+    pdf.cell(w=0, text='Account Extended Public Keys', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     pdf.set_font('helvetica',size=11)
     pdf.ln(4)
 
@@ -295,28 +307,32 @@ def create_pdf(seed_name, mnemonic):
             row = table.row()
             for j,datum in enumerate(data_row):
                 if j == 2 and i>0:
-                    row.cell(img=datum)   
+                   temp_qr_path = f"temp_xpub_{i}.png"
+                   datum.save(temp_qr_path)
+                   row.cell(img=temp_qr_path)
                 else:
                     row.cell(datum)     
 
 
     pdf.ln(8)    
     pdf.set_font('helvetica','B',size=12)
-    pdf.cell(txt='Derived Addresses',new_x='LMARGIN',new_y='NEXT')
+    pdf.cell(w=0, text='Derived Addresses', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     pdf.set_font('helvetica',size=11)
     pdf.ln(8)
     
     for bip_type in derived_addresses_table_data:
         pdf.ln(8)
         pdf.set_font('helvetica','B',size=12)
-        pdf.cell(txt=bip_type,new_x='LMARGIN',new_y='NEXT')
+        pdf.cell(w=0, text=bip_type, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         pdf.ln(2)
         with pdf.table(padding=2,col_widths=[10,85,30,30],) as table:
             for i, data_row in enumerate(derived_addresses_table_data[bip_type]):
                 row = table.row()
                 for j, datum in enumerate(data_row):                   
                     if j == 2 and i>0:
-                        row.cell(img=datum.get_image(),img_fill_width=True)
+                       temp_qr_path = f"temp_derived_{bip_type}_{i}_{j}.png"
+                       datum.save(temp_qr_path)
+                       row.cell(img=temp_qr_path, img_fill_width=True)
                     else:
                         row.cell(datum,)
             # if no space left in the bottom, add a new page

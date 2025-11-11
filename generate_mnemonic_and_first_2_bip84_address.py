@@ -1,27 +1,38 @@
 import subprocess
 import sys
+import os
 
-def install_and_import(package, import_name=None):
+def setup_virtual_environment():
     """
-    Installs a package if it's not already installed, then imports it.
+    Sets up a virtual environment, installs dependencies, and ensures the
+    script runs within it.
     """
-    if import_name is None:
-        import_name = package
-    try:
-        __import__(import_name)
-    except ImportError:
-        print(f"'{package}' not found. Installing now...")
-        try:
-            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-            __import__(import_name)
-            print(f"'{package}' installed successfully.")
-        except Exception as e:
-            print(f"Error installing '{package}': {e}")
-            sys.exit(1)
+    venv_dir = "venv"
+    if sys.prefix == os.path.abspath(venv_dir):
+        # Already in the correct virtual environment
+        return
 
-# Check and install dependencies
-install_and_import("mnemonic")
-install_and_import("bip_utils")
+    if not os.path.exists(venv_dir):
+        print("Creating virtual environment...")
+        subprocess.check_call([sys.executable, "-m", "venv", venv_dir])
+
+    # Determine the path to the python executable in the venv
+    if sys.platform == "win32":
+        python_executable = os.path.join(venv_dir, "Scripts", "python.exe")
+    else:
+        python_executable = os.path.join(venv_dir, "bin", "python")
+
+    # Uninstall old fpdf versions and install dependencies
+    print("Uninstalling old fpdf versions and installing dependencies...")
+    subprocess.check_call([python_executable, "-m", "pip", "uninstall", "--yes", "fpdf", "pypdf"])
+    subprocess.check_call([python_executable, "-m", "pip", "install", "-r", "requirements.txt"])
+
+    # Relaunch the script with the venv's python
+    print("Relaunching script in the virtual environment...")
+    os.execv(python_executable, [python_executable] + sys.argv)
+
+# Setup virtual environment and dependencies before importing them
+setup_virtual_environment()
 
 from mnemonic import Mnemonic
 from bip_utils import Bip39SeedGenerator, Bip84, Bip84Coins, Bip44Changes

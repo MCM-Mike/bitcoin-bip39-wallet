@@ -1,0 +1,5 @@
+mnemonic
+bip_utils
+qrcode
+fpdf2
+Pillow

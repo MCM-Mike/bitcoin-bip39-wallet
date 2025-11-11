@@ -1,0 +1,7 @@
+# Virtual environment
+venv/
+
+# Generated files
+*.pdf
+*.seed
+*.png
