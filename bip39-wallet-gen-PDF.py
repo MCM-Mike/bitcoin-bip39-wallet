@@ -1,3 +1,30 @@
+import subprocess
+import sys
+
+def install_and_import(package, import_name=None):
+    """
+    Installs a package if it's not already installed, then imports it.
+    """
+    if import_name is None:
+        import_name = package
+    try:
+        __import__(import_name)
+    except ImportError:
+        print(f"'{package}' not found. Installing now...")
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+            __import__(import_name)
+            print(f"'{package}' installed successfully.")
+        except Exception as e:
+            print(f"Error installing '{package}': {e}")
+            sys.exit(1)
+
+# Check and install dependencies
+install_and_import("mnemonic")
+install_and_import("bip_utils")
+install_and_import("qrcode")
+install_and_import("fpdf")
+
 from mnemonic import Mnemonic
 # YLCN: I added Bip49Coins and Bip84Coins enum imports
 from bip_utils import Bip39SeedGenerator, Bip44, Bip49, Bip84, Bip44Coins, Bip44Changes, Bip49Coins, Bip84Coins
@@ -60,7 +87,7 @@ def derive_root_keys(seed_bytes):
     for bip_type, bip_cls in [('BIP44', Bip44), ('BIP49', Bip49), ('BIP84', Bip84)]:
             # YLCN second parameter used in FromSeed function below was BIP44Coins.BITCOIN
             # for all bip types, I changed it so that appropriate format is used for each type
-            bip_obj = bip_cls.FromSeed(seed_bytes, bip_coins[bip_type].BITCOIN)
+            bip_obj = bip_cls.FromSeed(seed_bytes, bip_coins[bip_type])
             root_key = bip_obj.PrivateKey().ToExtended()
             root_keys[bip_type]= {'key':root_key,'description':bip_descriptions[bip_type]}
             
@@ -82,7 +109,7 @@ def derive_extended_pub_keys(seed_bytes):
     for bip_type, bip_cls in [('BIP44', Bip44), ('BIP49', Bip49), ('BIP84', Bip84)]:
         # YLCN second parameter used in FromSeed function below was BIP44Coins.BITCOIN
         # for all bip types, I changed it so that appropriate format is used for each type
-        bip_obj = bip_cls.FromSeed(seed_bytes, bip_coins[bip_type].BITCOIN)
+        bip_obj = bip_cls.FromSeed(seed_bytes, bip_coins[bip_type])
         account_ext_pub_key = bip_obj.Purpose().Coin().Account(0).PublicKey().ToExtended()
         account_ext_pub_key_qr = generate_qr_code(account_ext_pub_key)
         pub_keys[bip_type] = {'key':account_ext_pub_key,'qr_code':account_ext_pub_key_qr}
@@ -105,7 +132,7 @@ def derive_derived_addresses(seed_bytes,n_address_count=3):
     for bip_type, bip_cls in [('BIP44', Bip44), ('BIP49', Bip49), ('BIP84', Bip84)]:
         # YLCN second parameter used in FromSeed function below was BIP44Coins.BITCOIN
         # for all bip types, I changed it so that appropriate format is used for each type
-        bip_obj = bip_cls.FromSeed(seed_bytes, bip_coins[bip_type].BITCOIN)
+        bip_obj = bip_cls.FromSeed(seed_bytes, bip_coins[bip_type])
         derived_addresses[bip_type] = []
         for i in range(n_address_count):
             address = bip_obj.Purpose().Coin().Account(0).Change(Bip44Changes.CHAIN_EXT).AddressIndex(i).PublicKey().ToAddress()
@@ -210,13 +237,13 @@ def create_pdf(seed_name, mnemonic):
     # First page title-seed name and generated time info
     pdf.add_page()
     pdf.set_font('helvetica',size = 24)
-    pdf.cell(text=f'Seed Information')
+    pdf.cell(txt=f'Seed Information')
     pdf.set_font('helvetica',size=14)
     pdf.ln(12)
-    pdf.cell(text=f'Seed Name: {seed_name}',new_x='LMARGIN',new_y='NEXT')
+    pdf.cell(txt=f'Seed Name: {seed_name}',new_x='LMARGIN',new_y='NEXT')
     pdf.set_font('helvetica','I',size=11)
     pdf.ln(2)
-    pdf.cell(text=f"(generated on {pdf.now})",new_x='LMARGIN',new_y='NEXT')
+    pdf.cell(txt=f"(generated on {pdf.now})",new_x='LMARGIN',new_y='NEXT')
     pdf.ln(2)
     pdf.set_font('helvetica','B',size=12)
 
@@ -228,18 +255,18 @@ def create_pdf(seed_name, mnemonic):
     pdf.line(5,pdf.y,pdf.w-5,pdf.y)
     pdf.ln(8)
 
-    pdf.cell(text='Mnemonic Words:',new_x='LMARGIN',new_y='NEXT')
+    pdf.cell(txt='Mnemonic Words:',new_x='LMARGIN',new_y='NEXT')
     MNEMONIC_SECTION_Y = pdf.y
     pdf.ln(1)
 
 
     pdf.set_font('helvetica',size=11)
     for i,word in enumerate(mnemonic.split()):
-        pdf.cell(text=f'{i+1:>2}. {word}',new_x='LMARGIN',new_y='NEXT')                      
+        pdf.cell(txt=f'{i+1:>2}. {word}',new_x='LMARGIN',new_y='NEXT')
 
     # Place Mneminic qr code image
     mnemonic_qr = generate_qr_code(mnemonic)
-    pdf.text(text='Mnemonic QR Code', x=62,y = MNEMONIC_SECTION_Y)
+    pdf.text(txt='Mnemonic QR Code', x=62,y = MNEMONIC_SECTION_Y)
     pdf.image(mnemonic_qr.get_image(),x=60,y=MNEMONIC_SECTION_Y+3,w=35,h=35)
 
 
@@ -259,7 +286,7 @@ def create_pdf(seed_name, mnemonic):
     # We add a new page to start extended public keys from start
     pdf.add_page()
     pdf.set_font('helvetica','B',size=12)
-    pdf.cell(text='Account Extended Public Keys',new_x='LMARGIN',new_y='NEXT')
+    pdf.cell(txt='Account Extended Public Keys',new_x='LMARGIN',new_y='NEXT')
     pdf.set_font('helvetica',size=11)
     pdf.ln(4)
 
@@ -275,14 +302,14 @@ def create_pdf(seed_name, mnemonic):
 
     pdf.ln(8)    
     pdf.set_font('helvetica','B',size=12)
-    pdf.cell(text='Derived Addresses',new_x='LMARGIN',new_y='NEXT')
+    pdf.cell(txt='Derived Addresses',new_x='LMARGIN',new_y='NEXT')
     pdf.set_font('helvetica',size=11)
     pdf.ln(8)
     
     for bip_type in derived_addresses_table_data:
         pdf.ln(8)
         pdf.set_font('helvetica','B',size=12)
-        pdf.cell(text=bip_type,new_x='LMARGIN',new_y='NEXT')
+        pdf.cell(txt=bip_type,new_x='LMARGIN',new_y='NEXT')
         pdf.ln(2)
         with pdf.table(padding=2,col_widths=[10,85,30,30],) as table:
             for i, data_row in enumerate(derived_addresses_table_data[bip_type]):

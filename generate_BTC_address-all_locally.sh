@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Variables
 now=$(date)
@@ -89,7 +89,7 @@ env_dir="/tmp/${current_date}"
 mkdir -p "$env_dir"
 python3 -m venv "$env_dir/venv"
 source "$env_dir/venv/bin/activate"
-pip install bit Crypto fpdf bip-utils base58
+pip install bit pycryptodome fpdf bip_utils base58
 
 # Write Python script to a temporary file and execute it
 python_script_file="${env_dir}/script.py"
@@ -101,7 +101,7 @@ echo "****************************************************"
 echo "*                                                  *"
 echo "*            BITCOIN ADDRESS INFORMATION           *"
 echo "*                                                  *"
-echo "*            $now           *"
+echo "*            ${now}           *"
 echo "****************************************************"
 echo
 

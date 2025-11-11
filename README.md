@@ -48,6 +48,12 @@ or `python bip39-wallet-gen-PDF.py`
 
 
 
+## Entropy and Security
+All scripts in this repository use a cryptographically secure random number generator to create the mnemonic phrase. Users can choose between a 12-word (128 bits of entropy) or 24-word (256 bits of entropy) mnemonic, both of which are considered secure industry standards.
+
+### Disclaimer
+**Security Warning:** Generating a wallet on a machine that may be compromised (e.g., infected with malware or viruses) is highly risky. For storing significant value, it is strongly recommended to generate your wallet on a clean, offline computer to minimize the risk of your private keys being stolen.
+
 ## Contributing
 Contributions to this project are welcome. Please fork the repository and submit a pull request with your proposed changes.
 

@@ -1,6 +1,30 @@
+import subprocess
+import sys
+
+def install_and_import(package, import_name=None):
+    """
+    Installs a package if it's not already installed, then imports it.
+    """
+    if import_name is None:
+        import_name = package
+    try:
+        __import__(import_name)
+    except ImportError:
+        print(f"'{package}' not found. Installing now...")
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+            __import__(import_name)
+            print(f"'{package}' installed successfully.")
+        except Exception as e:
+            print(f"Error installing '{package}': {e}")
+            sys.exit(1)
+
+# Check and install dependencies
+install_and_import("mnemonic")
+install_and_import("bip_utils")
+
 from mnemonic import Mnemonic
 from bip_utils import Bip39SeedGenerator, Bip84, Bip84Coins, Bip44Changes
-import sys
 
 def generate_mnemonic(strength):
     mnemo = Mnemonic("english")

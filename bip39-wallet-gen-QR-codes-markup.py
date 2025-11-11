@@ -1,5 +1,31 @@
+import subprocess
+import sys
+
+def install_and_import(package, import_name=None):
+    """
+    Installs a package if it's not already installed, then imports it.
+    """
+    if import_name is None:
+        import_name = package
+    try:
+        __import__(import_name)
+    except ImportError:
+        print(f"'{package}' not found. Installing now...")
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+            __import__(import_name)
+            print(f"'{package}' installed successfully.")
+        except Exception as e:
+            print(f"Error installing '{package}': {e}")
+            sys.exit(1)
+
+# Check and install dependencies
+install_and_import("mnemonic")
+install_and_import("bip_utils")
+install_and_import("qrcode")
+
 from mnemonic import Mnemonic
-from bip_utils import Bip39SeedGenerator, Bip44, Bip49, Bip84, Bip44Coins, Bip44Changes
+from bip_utils import Bip39SeedGenerator, Bip44, Bip49, Bip84, Bip44Coins, Bip49Coins, Bip84Coins, Bip44Changes
 from datetime import datetime
 import qrcode
 import base64
@@ -58,8 +84,8 @@ def derive_keys_and_write_to_file(mnemonic, seed_name):
             'BIP84': 'Segwit Native'
         }
 
-        for bip_type, bip_cls in [('BIP44', Bip44), ('BIP49', Bip49), ('BIP84', Bip84)]:
-            bip_obj = bip_cls.FromSeed(seed_bytes, Bip44Coins.BITCOIN)
+        for bip_type, bip_cls, coin_type in [('BIP44', Bip44, Bip44Coins.BITCOIN), ('BIP49', Bip49, Bip49Coins.BITCOIN), ('BIP84', Bip84, Bip84Coins.BITCOIN)]:
+            bip_obj = bip_cls.FromSeed(seed_bytes, coin_type)
             root_key = bip_obj.PrivateKey().ToExtended()
             file.write(f"| {bip_type} | {bip_descriptions[bip_type]} | {root_key} |\n")
 
@@ -68,8 +94,8 @@ def derive_keys_and_write_to_file(mnemonic, seed_name):
         file.write("| BIP Type | Account Extended Public Key | QR Code | Notes |\n")
         file.write("|----------|------------------------------|---------|-------|\n")
         
-        for bip_type, bip_cls in [('BIP44', Bip44), ('BIP49', Bip49), ('BIP84', Bip84)]:
-            bip_obj = bip_cls.FromSeed(seed_bytes, Bip44Coins.BITCOIN)
+        for bip_type, bip_cls, coin_type in [('BIP44', Bip44, Bip44Coins.BITCOIN), ('BIP49', Bip49, Bip49Coins.BITCOIN), ('BIP84', Bip84, Bip84Coins.BITCOIN)]:
+            bip_obj = bip_cls.FromSeed(seed_bytes, coin_type)
             account_ext_pub_key = bip_obj.Purpose().Coin().Account(0).PublicKey().ToExtended()
             account_ext_pub_key_qr = generate_qr_code(account_ext_pub_key)
             file.write(f"| {bip_type} | {account_ext_pub_key} | ![](data:image/png;base64,{account_ext_pub_key_qr}) |  |\n")
@@ -79,8 +105,8 @@ def derive_keys_and_write_to_file(mnemonic, seed_name):
         file.write("| BIP Type | Address Index | Address | QR Code | Notes |\n")
         file.write("|----------|---------------|---------|---------|-------|\n")
 
-        for bip_type, bip_cls in [('BIP44', Bip44), ('BIP49', Bip49), ('BIP84', Bip84)]:
-            bip_obj = bip_cls.FromSeed(seed_bytes, Bip44Coins.BITCOIN)
+        for bip_type, bip_cls, coin_type in [('BIP44', Bip44, Bip44Coins.BITCOIN), ('BIP49', Bip49, Bip49Coins.BITCOIN), ('BIP84', Bip84, Bip84Coins.BITCOIN)]:
+            bip_obj = bip_cls.FromSeed(seed_bytes, coin_type)
             for i in range(3):
                 address = bip_obj.Purpose().Coin().Account(0).Change(Bip44Changes.CHAIN_EXT).AddressIndex(i).PublicKey().ToAddress()
                 address_qr_code = generate_qr_code(address)
